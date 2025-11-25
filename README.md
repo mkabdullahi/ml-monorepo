@@ -1,89 +1,134 @@
-# MlMonorepo
+# Python GenAI Monorepo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## Overview
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+This monorepo is an end-to-end platform for developing, training, and deploying Large Language Models (LLMs) integrated with Computer Vision (CV) applications. It leverages Python, Nx for workspace orchestration, and supports modular development across multiple apps and packages.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/npm-workspaces-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+Key features:
+- LLM and CV integration for multimodal AI workflows
+- Modular Nx workspace for scalable development
+- Poetry for dependency management
+- Pluggable LLM client (OpenAI, Anthropic, Google, etc.)
+- Automated testing, linting, and CI/CD pipelines
 
-## Finish your CI setup
+---
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/5IfoxbOtz4)
-
-
-## Run tasks
-
-To run tasks with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-For example:
-
-```sh
-npx nx build myproject
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Project Structure
 
 ```
-npx nx release
+ml-monorepo/
+├── apps/
+│   └── cv_app/           # Main computer vision + LLM application
+│       ├── main.py
+│       ├── ...
+│   └── project.json      # Nx project configuration
+├── packages/
+│   └── llm_client/       # Shared LLM client wrapper (generic)
+│       ├── client.py
+│       ├── ...
+├── tests/                # Unit and integration tests
+├── .venv/                # Virtual environment (local)
+├── README.md
+└── ...
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+---
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Quick Start
 
-## Add new projects
+1. **Install dependencies:**
+   ```sh
+   cd ml-monorepo
+   poetry install
+   ```
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+2. **Set up environment variables:**
+   - Copy `.env.example` to `.env` and fill in required values for your chosen LLM provider:
+     ```
+     LLM_PROVIDER=openai|anthropic|google|custom
+     LLM_API_KEY=your-key
+     LLM_MODEL=model-name
+     ENABLE_LLM=true
+     ```
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
+3. **Run the CV+LLM app:**
+   ```sh
+   npx nx run cv-app
+   ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+4. **Run tests:**
+   ```sh
+   npx nx test cv-app
+   ```
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+---
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
+## LLM Integration
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+- The repo supports a generic LLM client in `packages/llm_client/client.py`.
+- Select your provider via the `LLM_PROVIDER` environment variable.
+- API keys and model names are required and should be stored securely (never committed).
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
+## Environment Variables
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+| Variable      | Description                                 |
+|---------------|---------------------------------------------|
+| LLM_PROVIDER  | LLM provider (e.g., openai, anthropic, etc) |
+| LLM_API_KEY   | API key for the selected provider           |
+| LLM_MODEL     | Model name (e.g., gpt-4, gemini-pro, etc)   |
+| ENABLE_LLM    | Enable LLM integration (true/false)         |
 
-## Install Nx Console
+See `.env.example` for details.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+---
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Development & Contribution
 
-## Useful links
+- Use Poetry for dependency management.
+- Use Nx for running, building, and testing apps.
+- Lint code with:
+  ```sh
+  npx nx lint cv-app
+  ```
+- Contributions welcome! Please submit PRs with clear descriptions and tests.
 
-Learn more:
+---
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/npm-workspaces-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Testing & CI
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- Unit and integration tests are in `tests/`.
+- CI/CD is managed via Nx and GitHub Actions.
+- Secrets for integration tests must be set in CI environment.
+
+---
+
+## Security
+
+- Never commit API keys or sensitive data.
+- Use `.env` for local secrets and GitHub Secrets for CI.
+
+---
+
+## Useful Commands
+
+| Task         | Command                        |
+|--------------|-------------------------------|
+| Install deps | `poetry install`              |
+| Run app      | `npx nx run cv-app`           |
+| Test         | `npx nx test cv-app`          |
+| Lint         | `npx nx lint cv-app`          |
+| Build        | `npx nx build cv-app`         |
+
+---
+
+## Resources
+
+- [Nx Documentation](https://nx.dev)
+- [Poetry Documentation](https://python-poetry.org/docs/)
+- [OpenAI API](https://platform.openai.com/docs/)
+- [Anthropic API](https://docs.anthropic.com/)
+- [Google Generative AI](https://ai.google.dev/)
+
+---
