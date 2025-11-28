@@ -1,0 +1,13 @@
+# libs/cv-utils/pyproject.toml
+[tool.poetry]
+name = "cv-utils"
+version = "0.1.0"
+description = "Reusable Computer Vision utilities for the monorepo"
+authors = ["M.K. Abdullahi"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+opencv-python = "^4.8.1.0"
+numpy = "~1.26.0"
+
