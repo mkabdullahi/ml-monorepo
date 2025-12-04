@@ -27,9 +27,12 @@ readme = 'README.md'
   include = "cv_app"
 
   [tool.poetry.dependencies]
-  python = ">=3.9,<3.11"
+  python = ">=3.10,<3.11"
   numpy = "~1.26.0"
   opencv-python = "^4.8.1.0"
+
+  # -- New dependency libs from the cv-utils --
+  cv-utils = {path = "../libs/cv-utils"}
 
   [tool.poetry.group.dev.dependencies]
   autopep8 = "2.3.1"
