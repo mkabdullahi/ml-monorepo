@@ -2,15 +2,18 @@
 
 ## Overview
 
-This monorepo is an end-to-end platform for developing, training, and deploying Large Language Models (LLMs) integrated with Computer Vision (CV) applications. It leverages Python, Nx for workspace orchestration, and supports modular development across multiple apps and packages.
+This monorepo is an end-to-end platform for developing, training, and deploying Large Language Models (LLMs) integrated with Computer Vision (CV) applications. It features a modern **Angular web dashboard** for real-time color tracking with FastAPI backend. The platform leverages Python, Nx for workspace orchestration, and supports modular development across multiple apps and packages.
 
 Key features:
-- **Multi-color object tracking** - Real-time detection and tracking of primary colors (Red, Blue, Yellow, Green)
-- LLM and CV integration for multimodal AI workflows
-- Modular Nx workspace for scalable development
-- Poetry for dependency management
-- Pluggable LLM client (OpenAI, Anthropic, Google, etc.)
-- Automated testing, linting, and CI/CD pipelines
+- **🎨 Web Dashboard** - Modern Angular UI for real-time color tracking with live video streaming
+- **🎯 Multi-color object tracking** - Real-time detection and tracking of primary colors (Red, Blue, Yellow, Green)
+- **⚡ FastAPI Backend** - High-performance API with WebSocket support for video streaming
+- **📊 Live Statistics** - Real-time detection counts, FPS monitoring, and interactive controls
+- **🔧 LLM and CV integration** - Ready for multimodal AI workflows
+- **📦 Modular Nx workspace** - Scalable development with Python and TypeScript
+- **🐍 Poetry for dependency management** - Consistent Python environments
+- **🔌 Pluggable LLM client** - Support for OpenAI, Anthropic, Google, etc.
+- **✅ Automated testing, linting, and CI/CD pipelines**
 
 ---
 
@@ -19,16 +22,25 @@ Key features:
 ```
 ml-monorepo/
 ├── apps/
-│   └── cv-app/            # Multi-color tracking application
-│       ├── main.py        # Main entry point
+│   ├── color-tracker-ui/      # Angular web dashboard (NEW!)
+│   │   ├── src/app/
+│   │   │   ├── components/    # Video display, controls, stats
+│   │   │   └── services/      # API client, WebSocket
+│   │   └── ...
+│   ├── cv-api/                # FastAPI backend (NEW!)
+│   │   ├── api_server.py      # WebSocket + REST API
+│   │   └── pyproject.toml
+│   └── cv-app/                # CLI color tracking application
+│       ├── main.py            # Main entry point
 │       └── ...
 ├── libs/
-│   └── cv-utils/          # Shared computer vision utilities
+│   └── cv-utils/              # Shared computer vision utilities
 │       └── src/
 │           └── cv_utils/
 │               └── tracker.py  # Color tracking implementation
-├── tests/                 # Unit and integration tests
-├── Dockerfile             # Docker configuration
+├── tests/                     # Unit and integration tests
+├── Dockerfile                 # Docker configuration
+├── LICENSE                    # MIT License
 ├── README.md
 └── ...
 ```
@@ -37,7 +49,37 @@ ml-monorepo/
 
 ## Quick Start
 
-### Local Development
+### Option 1: Web Dashboard (Recommended)
+
+**Modern Angular UI with real-time video streaming**
+
+#### Terminal 1: Start Backend API
+```sh
+cd apps/cv-api
+poetry install
+poetry run uvicorn api_server:app --reload
+```
+
+#### Terminal 2: Start Frontend
+```sh
+# From monorepo root
+npx nx serve color-tracker-ui
+```
+
+#### Open Browser
+Navigate to **http://localhost:4200**
+
+**Features:**
+- 🎥 Live video streaming with detection overlays
+- 🎛️ Interactive controls (Start/Stop, color toggles)
+- 📊 Real-time statistics dashboard
+- ⚙️ Adjustable settings (detection area, camera selection)
+
+---
+
+### Option 2: CLI Application
+
+**Traditional OpenCV window-based interface**
 
 1. **Set Python version:**
    ```sh
@@ -231,5 +273,31 @@ When you add new features or update code:
 - [OpenAI API](https://platform.openai.com/docs/)
 - [Anthropic API](https://docs.anthropic.com/)
 - [Google Generative AI](https://ai.google.dev/)
+
+---
+
+## License
+
+MIT License
+
+Copyright (c) 2025 Color Tracker Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ---
