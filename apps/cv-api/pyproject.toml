@@ -5,15 +5,16 @@ description = "FastAPI backend for color tracker"
 authors = []
 license = "Proprietary"
 readme = "README.md"
+package-mode = false
 
-  [[tool.poetry.packages]]
-  include = "cv_api"
+
 
   [tool.poetry.dependencies]
   python = ">=3.10,<3.11"
   fastapi = "^0.115.0"
   uvicorn = {extras = ["standard"], version = "^0.32.0"}
   websockets = "^13.1"
+  aiohttp = "^3.9.0"
   python-multipart = "^0.0.18"
   opencv-python = "^4.8.1.0"
   numpy = "~1.26.0"
