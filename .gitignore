@@ -44,3 +44,5 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 /apps/.venv
 /apps/cv-app/main_simple_cv_setup.py
+
+.angular

@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "cv-api"
+version = "1.0.0"
+description = "FastAPI backend for color tracker"
+authors = []
+license = "Proprietary"
+readme = "README.md"
+
+  [[tool.poetry.packages]]
+  include = "cv_api"
+
+  [tool.poetry.dependencies]
+  python = ">=3.10,<3.11"
+  fastapi = "^0.115.0"
+  uvicorn = {extras = ["standard"], version = "^0.32.0"}
+  websockets = "^13.1"
+  python-multipart = "^0.0.18"
+  opencv-python = "^4.8.1.0"
+  numpy = "~1.26.0"
+  
+  # Local dependency
+  cv-utils = {path = "../../libs/cv-utils"}
+
+  [tool.poetry.group.dev.dependencies]
+  pytest = "^8.3.4"
+  httpx = "^0.28.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
