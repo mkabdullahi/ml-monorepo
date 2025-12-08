@@ -15,6 +15,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/cv-utils/src'))
 
 from cv_utils.tracker import COLOR_RANGES, BOX_COLORS
+from llm_service import LLMService
 
 app = FastAPI(title="Color Tracker API", version="1.0.0")
 
@@ -39,6 +40,34 @@ class TrackerState:
         self.fps = 0
 
 tracker_state = TrackerState()
+llm_service = LLMService()
+
+def get_position_label(x, y, w, h, frame_width, frame_height):
+    cx = x + w // 2
+    cy = y + h // 2
+    
+    h_label = ""
+    if cx < frame_width // 3:
+        h_label = "left"
+    elif cx > 2 * frame_width // 3:
+        h_label = "right"
+    else:
+        h_label = "center"
+        
+    v_label = ""
+    if cy < frame_height // 3:
+        v_label = "top"
+    elif cy > 2 * frame_height // 3:
+        v_label = "bottom"
+    else:
+        v_label = ""
+        
+    if v_label and h_label:
+        return f"{v_label}-{h_label}"
+    elif v_label:
+        return v_label
+    else:
+        return h_label
 
 @dataclass
 class DetectionStats:
@@ -147,6 +176,9 @@ async def video_stream(websocket: WebSocket):
     kernel = np.ones((5, 5), np.uint8)
     
     try:
+        frame_count = 0
+        current_narration = ""
+        
         while True:
             if not tracker_state.is_running or tracker_state.cap is None:
                 # Send empty frame or status message
@@ -172,6 +204,7 @@ async def video_stream(websocket: WebSocket):
             
             # Reset detection stats for this frame
             frame_stats = {color: 0 for color in COLOR_RANGES.keys()}
+            detected_objects = []
             
             # Detect each enabled color
             for color_name, ranges in COLOR_RANGES.items():
@@ -196,6 +229,13 @@ async def video_stream(websocket: WebSocket):
                     for contour in contours:
                         if cv.contourArea(contour) > tracker_state.min_area:
                             x, y, w, h = cv.boundingRect(contour)
+                            
+                            # Store object info for narration
+                            detected_objects.append({
+                                "color": color_name,
+                                "position": get_position_label(x, y, w, h, frame.shape[1], frame.shape[0])
+                            })
+
                             box_color = BOX_COLORS[color_name]
                             
                             # Draw rectangle and label
@@ -212,11 +252,16 @@ async def video_stream(websocket: WebSocket):
             _, buffer = cv.imencode('.jpg', frame, [cv.IMWRITE_JPEG_QUALITY, 80])
             frame_base64 = base64.b64encode(buffer).decode('utf-8')
             
+            frame_count += 1
+            if frame_count % 90 == 0:  # Every ~3 seconds (assuming 30fps)
+                current_narration = await llm_service.generate_narration(detected_objects)
+
             # Send frame and stats
             await websocket.send_json({
                 "type": "frame",
                 "data": frame_base64,
                 "stats": frame_stats,
+                "narration": current_narration,
                 "timestamp": asyncio.get_event_loop().time()
             })
             

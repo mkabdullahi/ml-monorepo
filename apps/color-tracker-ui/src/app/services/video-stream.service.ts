@@ -12,6 +12,7 @@ export interface VideoFrame {
     };
     timestamp?: number;
     message?: string;
+    narration?: string;
 }
 
 @Injectable({
