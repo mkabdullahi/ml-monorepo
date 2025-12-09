@@ -6,9 +6,12 @@ import aiohttp
 
 class LLMService:
     def __init__(self):
-        self.api_key = os.getenv("LLM_API_KEY")
-        self.provider = os.getenv("LLM_PROVIDER", "openai")
-        self.model = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.provider = os.getenv("LLM_PROVIDER", "gemini")
+        self.model = os.getenv("LLM_MODEL", "gemini-2.0-flash")
+
+        # Define the base URL
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models"
         
     async def generate_narration(self, valid_objects: List[Dict]) -> str:
         """
@@ -27,11 +30,12 @@ class LLMService:
         
         if not self.api_key:
             # Fallback mock response if no API key is set
+            print("Warning: GEMINI_API_KEY not set. Using mock response.")
             return self._mock_response(valid_objects)
             
         try:
-            if self.provider == "openai":
-                return await self._call_openai(prompt)
+            if self.provider == "gemini":
+                return await self._call_gemini(prompt)
             # Add other providers here
             else:
                 return self._mock_response(valid_objects)
@@ -55,24 +59,39 @@ class LLMService:
         else:
             return f"Wow, there are {len(objects)} colorful objects here!"
 
-    async def _call_openai(self, prompt: str) -> str:
-        """Basic OpenAI API call"""
+    async def _call_gemini(self, prompt: str) -> str:
+        """Basic Gemini API call"""
+        url = f"{self.base_url}/{self.model}:generateContent?key={self.api_key}"
+
+        # The system intruction is separated from the main prompt in the the payload
+        system_instruction = "You are a helpful narrator for a blind use. Describe the scene briefly, using simple and direct language."
+        payload = {
+            "contents":[{
+                "parts": [{"text":prompt}]
+                }],
+            "systemInstruction":{
+                "parts":[{"text":system_instruction}]
+            },
+            # Configuration for concise output
+             "config":{
+                "maxOutputTokens":51,
+                "temperature":0.3
+             }
+        }
+
+        # Headers
+        headers = {
+            "Content-Type":"application/json"
+        }
         async with aiohttp.ClientSession() as session:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}"
-            }
-            data = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": "You are a helpful narrator for a blind user. Describe the scene briefly."},
-                    {"role": "user", "content": prompt}
-                ],
-                "max_tokens": 50
-            }
-            async with session.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data) as resp:
-                if resp.status == 200:
+            async with session.post(url, headers=headers, json=payload) as response:
+                if response.status == 200:
                     result = await resp.json()
-                    return result['choices'][0]['message']['content']
+                    # Navigate the JSON response structure
+                    candidate = result.get('candidate', [{}])[0]
+                    text_part = candidate.get('content', {}).get('parts', [{}])[0]
+                    return text_part.get('text', 'Narration unavailable.')
                 else:
-                    return f"Error: {resp.status}"
+                    error_text = await response.text()
+                    print(f"Gemini API returned status{response.status}:{error_text}")
+                    return f"Error: Failed to connect to Gemini API (Status {response.status})"
