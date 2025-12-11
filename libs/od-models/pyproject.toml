@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "od-models"
+version = "0.1.0"
+description = "Model loading and inference logic for object detection."
+authors = ["MK Abdullahi"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.11"
+# Detection library
+ultralytics = "^8.2.0" 
+opencv-python = "^4.8.1.0"
+numpy = "~1.26.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
