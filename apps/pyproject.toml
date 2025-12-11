@@ -33,6 +33,7 @@ readme = 'README.md'
 
   # -- New dependency libs from the cv-utils --
   cv-utils = {path = "../libs/cv-utils"}
+  od-models = {path = "../libs/od-models"}
 
   [tool.poetry.group.dev.dependencies]
   autopep8 = "2.3.1"
