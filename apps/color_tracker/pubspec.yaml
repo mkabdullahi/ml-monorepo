@@ -1,5 +1,5 @@
 name: color_tracker
-description: "A new Flutter project."
+description: "Color Tracking App"
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  web_socket_channel: ^3.0.1
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
