@@ -37,9 +37,9 @@ class _ColorTrackingScreenState extends State<ColorTrackingScreen> {
   bool _isRunning = false;
   String _error = '';
   final String _baseUrl =
-      'http://192.168.64.4:8000'; // Change to the real IP for mobile to work
+      'http://localhost:8000'; // Change to the real IP for mobile to work
   final String _wsUrl =
-      'ws://192.168.64.4:8000/ws/video'; // Change to the real IP for mobile to work
+      'ws://localhost:8000/ws/video'; // Change to the real IP for mobile to work
 
   @override
   void initState() {
