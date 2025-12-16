@@ -6,6 +6,7 @@ This monorepo is an end-to-end platform for developing, training, and deploying 
 
 Key features:
 - **🎨 Web Dashboard** - Modern Angular UI for real-time color tracking with live video streaming
+- **📱 Mobile App** - React Native (Expo) app for iPhone camera streaming and tracking
 - **🎯 Multi-color object tracking** - Real-time detection and tracking of primary colors (Red, Blue, Yellow, Green)
 - **⚡ FastAPI Backend** - High-performance API with WebSocket support for video streaming
 - **📊 Live Statistics** - Real-time detection counts, FPS monitoring, and interactive controls
@@ -22,6 +23,7 @@ Key features:
 ```
 ml-monorepo/
 ├── apps/
+│   ├── mobile/                # React Native/Expo iPhone App (NEW!)
 │   ├── color-tracker-ui/      # Angular web dashboard (NEW!)
 │   │   ├── src/app/
 │   │   │   ├── components/    # Video display, controls, stats
@@ -77,7 +79,29 @@ Navigate to **http://localhost:4200**
 
 ---
 
-### Option 2: CLI Application
+---
+
+### Option 2: Mobile App (iPhone)
+
+**Use your iPhone as a webcam and tracking display**
+
+1.  **Start the Backend**:
+    (Follow 'Terminal 1' steps from Option 1 above)
+
+2.  **Start the Expo App**:
+    ```sh
+    cd apps/mobile
+    npx expo start
+    ```
+
+3.  **Connect**:
+    *   Scan the QR code with **Expo Go** on your iPhone.
+    *   Ensure your phone is on the same Wi-Fi as your computer.
+    *   *Note: Update the WebSocket IP in `apps/mobile/App.js` if connection fails.*
+
+---
+
+### Option 3: CLI Application
 
 **Traditional OpenCV window-based interface**
 
