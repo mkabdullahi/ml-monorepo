@@ -18,9 +18,11 @@ package-mode = false
   python-multipart = "^0.0.18"
   opencv-python = "^4.8.1.0"
   numpy = "~1.26.0"
-  
-  # Local dependency
+  ultralytics = "^8.2.0"
+
+  # Local dependencies
   cv-utils = {path = "../../libs/cv-utils"}
+  od-models = {path = "../../libs/od-models"}
 
   [tool.poetry.group.dev.dependencies]
   pytest = "^8.3.4"
