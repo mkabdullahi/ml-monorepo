@@ -13,6 +13,7 @@ import os
 
 # Add the libs directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/cv-utils/src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/od-models/src'))
 
 from cv_utils.tracker import COLOR_RANGES, BOX_COLORS
 from od_models.object_dectation_tracker import detect_and_draw
@@ -43,6 +44,9 @@ class TrackerState:
 
 tracker_state = TrackerState()
 llm_service = LLMService()
+
+# Global narration state (reset when mode changes)
+current_global_narration = ""
 
 def get_position_label(x, y, w, h, frame_width, frame_height):
     cx = x + w // 2
@@ -174,10 +178,16 @@ async def update_settings(min_area: int = 500, camera_index: int = 0):
 @app.post("/api/mode/{mode}")
 async def set_detection_mode(mode: str):
     """Set detection mode: 'color' or 'object'"""
+    global current_global_narration
+    
     if mode not in ["color", "object"]:
         raise HTTPException(status_code=400, detail="Invalid mode. Must be 'color' or 'object'")
 
     tracker_state.detection_mode = mode
+    
+    # Reset narration when switching modes
+    current_global_narration = ""
+    
     return {"mode": mode, "message": f"Detection mode set to {mode}"}
 
 @app.get("/api/modes")
@@ -198,6 +208,10 @@ async def video_stream(websocket: WebSocket):
     try:
         frame_count = 0
         current_narration = ""
+        
+        # FPS calculation variables
+        fps_counter = 0
+        fps_start_time = asyncio.get_event_loop().time()
 
         while True:
             if not tracker_state.is_running or tracker_state.cap is None:
@@ -269,18 +283,50 @@ async def video_stream(websocket: WebSocket):
                                 frame_stats[color_name] += 1
 
             elif tracker_state.detection_mode == "object":
-                # Process frame with YOLO object detection
-                frame = detect_and_draw(frame)
+                # Process frame with YOLO object detection with timeout protection
+                try:
+                    # Run YOLO in executor to prevent blocking async loop
+                    loop = asyncio.get_event_loop()
+                    frame, detections = await asyncio.wait_for(
+                        loop.run_in_executor(None, detect_and_draw, frame),
+                        timeout=1.0  # 1 second timeout
+                    )
 
-                # For object detection, we'll use a simplified stats approach
-                # In a full implementation, you'd extract detection counts from YOLO results
-                frame_stats = {"objects_detected": 1}  # Placeholder - would need to modify detect_and_draw to return stats
+                    # Count detections by class
+                    class_counts = {}
+                    detected_objects = []
 
-                # For narration, we could extract detected classes from YOLO
-                detected_objects = [{"object": "detected", "position": "center"}]  # Placeholder
+                    for detection in detections:
+                        class_name = detection['class_name']
+                        class_counts[class_name] = class_counts.get(class_name, 0) + 1
+
+                        # Format for narration
+                        detected_objects.append({
+                            "object": class_name,
+                            "position": detection['position']
+                        })
+
+                    # Set frame stats with actual detection counts
+                    frame_stats = class_counts if class_counts else {"objects_detected": 0}
+                    
+                except asyncio.TimeoutError:
+                    # Fallback on timeout: skip detection for this frame
+                    frame_stats = {"objects_detected": 0}
+                    print("YOLO inference timed out, skipping frame")
 
             # Update global stats
             tracker_state.detection_stats = frame_stats
+
+            # Calculate FPS
+            fps_counter += 1
+            current_time = asyncio.get_event_loop().time()
+            if current_time - fps_start_time >= 1.0:  # Update every second
+                tracker_state.fps = fps_counter
+                fps_counter = 0
+                fps_start_time = current_time
+
+            # Add FPS to frame stats
+            frame_stats['fps'] = tracker_state.fps
 
             # Encode frame to base64
             _, buffer = cv.imencode('.jpg', frame, [cv.IMWRITE_JPEG_QUALITY, 80])
@@ -299,8 +345,12 @@ async def video_stream(websocket: WebSocket):
                 "timestamp": asyncio.get_event_loop().time()
             })
 
-            # Control frame rate (30 FPS)
-            await asyncio.sleep(1/30)
+            # Control frame rate based on detection mode
+            # Object detection is slower, so use lower frame rate to prevent freezing
+            if tracker_state.detection_mode == "object":
+                await asyncio.sleep(1/15)  # 15 FPS for object detection
+            else:
+                await asyncio.sleep(1/30)  # 30 FPS for color detection
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")

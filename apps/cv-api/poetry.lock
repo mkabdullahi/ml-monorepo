@@ -388,7 +388,7 @@ files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "sys_platform == \"win32\" or platform_system == \"Windows\"", dev = "sys_platform == \"win32\""}
+markers = {main = "platform_system == \"Windows\" or sys_platform == \"win32\"", dev = "sys_platform == \"win32\""}
 
 [[package]]
 name = "contourpy"
@@ -2814,14 +2814,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "ultralytics"
-version = "8.3.239"
+version = "8.3.240"
 description = "Ultralytics YOLO 🚀 for SOTA object detection, multi-object tracking, instance segmentation, pose estimation and image classification."
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "ultralytics-8.3.239-py3-none-any.whl", hash = "sha256:2e33c46303d63e5deea14b19599aecd1562aeb1d3ddcdfff786cad66aa431083"},
-    {file = "ultralytics-8.3.239.tar.gz", hash = "sha256:f68b7ceed1d91ed970635656ef90bce4eee203311bce06b4222c51857ca223c1"},
+    {file = "ultralytics-8.3.240-py3-none-any.whl", hash = "sha256:b21179e8af29a5ca8c063e662b79b8a6ab7a84b788a200270d8723f4d611d3e1"},
+    {file = "ultralytics-8.3.240.tar.gz", hash = "sha256:dac0a0e1b999ace2e42845f600156b1c1a6987647a0de302290e6ede8492ff82"},
 ]
 
 [package.dependencies]
@@ -2843,7 +2843,7 @@ ultralytics-thop = ">=2.0.18"
 
 [package.extras]
 dev = ["coverage[toml]", "ipython", "minijinja (>=2.0.0)", "mkdocs-ultralytics-plugin (>=0.2.3)", "pytest", "pytest-cov", "zensical (>=0.0.9) ; python_version >= \"3.10\""]
-export = ["coremltools (>=9.0) ; platform_system != \"Windows\" and python_version <= \"3.13\"", "h5py (!=3.11.0) ; platform_machine == \"aarch64\"", "numpy (<2.0.0)", "onnx (>=1.12.0) ; platform_system != \"Darwin\"", "onnx (>=1.12.0,<1.18.0) ; platform_system == \"Darwin\"", "openvino (>=2024.0.0)", "scikit-learn (>=1.3.2) ; platform_system != \"Windows\" and python_version <= \"3.13\"", "tensorflow (>=2.0.0,<=2.19.0)", "tensorflowjs (>=2.0.0)", "tensorstore (>=0.1.63) ; platform_machine == \"aarch64\" and python_version >= \"3.9\""]
+export = ["coremltools (>=9.0) ; platform_system != \"Windows\" and python_version <= \"3.13\"", "h5py (!=3.11.0) ; platform_machine == \"aarch64\"", "numpy (<2.0.0)", "onnx (>=1.12.0) ; platform_system != \"Darwin\"", "onnx (>=1.12.0,<1.18.0) ; platform_system == \"Darwin\"", "onnxslim (>=0.1.80)", "openvino (>=2024.0.0)", "scikit-learn (>=1.3.2) ; platform_system != \"Windows\" and python_version <= \"3.13\"", "tensorflow (>=2.0.0,<=2.19.0)", "tensorflowjs (>=2.0.0)", "tensorstore (>=0.1.63) ; platform_machine == \"aarch64\" and python_version >= \"3.9\""]
 extra = ["albumentations (>=1.4.6)", "faster-coco-eval (>=1.6.7)", "hub-sdk (>=0.0.12)", "ipython"]
 logging = ["mlflow", "tensorboard", "wandb"]
 solutions = ["flask (>=3.0.1)", "shapely (>=2.0.0)", "streamlit (>=1.29.0)"]
