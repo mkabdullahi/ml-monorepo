@@ -67,7 +67,7 @@ import { VideoStreamService } from '../../services/video-stream.service';
             @if (selectedMode === 'color') {
               Detects primary colors: Red, Blue, Yellow, Green
             } @else {
-              Uses YOLOv8 to detect various objects (person, car, dog, etc.)
+              Detects various objects: (person, car, dog, etc.)
             }
           </p>
         </div>
