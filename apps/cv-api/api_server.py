@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/cv-utils/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/od-models/src'))
 
 from cv_utils.tracker import COLOR_RANGES, BOX_COLORS
-from od_models.object_dectation_tracker import detect_and_draw
+from od_models.mobilenet_ssd_detector import detect_and_draw
 from llm_service import LLMService
 
 app = FastAPI(title="Color Tracker API", version="1.0.0")
@@ -333,7 +333,10 @@ async def video_stream(websocket: WebSocket):
             frame_base64 = base64.b64encode(buffer).decode('utf-8')
 
             frame_count += 1
-            if frame_count % 90 == 0:  # Every ~3 seconds (assuming 30fps)
+
+            # Adjust narration frequency based on detection mode and frame rate
+            narration_interval = 60 if tracker_state.detection_mode == "object" else 90  # ~4s for object, ~3s for color
+            if frame_count % narration_interval == 0:
                 current_narration = await llm_service.generate_narration(detected_objects)
 
             # Send frame and stats
@@ -346,9 +349,9 @@ async def video_stream(websocket: WebSocket):
             })
 
             # Control frame rate based on detection mode
-            # Object detection is slower, so use lower frame rate to prevent freezing
+            # MobileNet SSD is much faster, so we can use higher frame rates
             if tracker_state.detection_mode == "object":
-                await asyncio.sleep(1/15)  # 15 FPS for object detection
+                await asyncio.sleep(1/20)  # 20 FPS for object detection (MobileNet SSD is fast)
             else:
                 await asyncio.sleep(1/30)  # 30 FPS for color detection
 

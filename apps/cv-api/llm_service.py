@@ -44,20 +44,38 @@ class LLMService:
             return "I'm having trouble seeing right now."
 
     def _construct_prompt(self, objects: List[Dict]) -> str:
-        description = ", ".join([f"a {obj['color']} object on the {obj['position']}" for obj in objects])
+        descriptions = []
+        for obj in objects:
+            # Handle both color detection (obj['color']) and object detection (obj['object'])
+            obj_type = obj.get('color') or obj.get('object', 'unknown object')
+            position = obj.get('position', '')
+            if position:
+                descriptions.append(f"a {obj_type} object on the {position}")
+            else:
+                descriptions.append(f"a {obj_type} object")
+
+        description = ", ".join(descriptions)
         return f"Briefly describe this scene to a user: {description}. Be creative but concise."
 
     def _mock_response(self, objects: List[Dict]) -> str:
         """Simple template-based response for testing without API keys"""
-        colors = [obj['color'] for obj in objects]
-        unique_colors = sorted(list(set(colors)))
-        
-        if len(unique_colors) == 1:
-            return f"I see something {unique_colors[0]}!"
-        elif len(unique_colors) == 2:
-            return f"I see {unique_colors[0]} and {unique_colors[1]} objects."
+        if not objects:
+            return "The scene is empty."
+
+        # Handle both color and object detection
+        obj_types = []
+        for obj in objects:
+            obj_type = obj.get('color') or obj.get('object', 'unknown')
+            obj_types.append(obj_type)
+
+        unique_types = sorted(list(set(obj_types)))
+
+        if len(unique_types) == 1:
+            return f"I see a {unique_types[0]} object!"
+        elif len(unique_types) == 2:
+            return f"I see {unique_types[0]} and {unique_types[1]} objects."
         else:
-            return f"Wow, there are {len(objects)} colorful objects here!"
+            return f"Wow, there are {len(objects)} different objects here!"
 
     async def _call_gemini(self, prompt: str) -> str:
         """Basic Gemini API call"""
@@ -86,7 +104,7 @@ class LLMService:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=payload) as response:
                 if response.status == 200:
-                    result = await resp.json()
+                    result = await response.json()
                     # Navigate the JSON response structure
                     candidate = result.get('candidate', [{}])[0]
                     text_part = candidate.get('content', {}).get('parts', [{}])[0]
