@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -216,11 +216,8 @@ export class StatsDashboardComponent implements OnInit, OnDestroy {
 
     private subscription?: Subscription;
     private statsSubscription?: Subscription;
-
-    constructor(
-        private trackerApi: TrackerApiService,
-        private videoStream: VideoStreamService
-    ) { }
+    private trackerApi = inject(TrackerApiService);
+    private videoStream = inject(VideoStreamService);
 
     ngOnInit(): void {
         // Update stats from video stream
