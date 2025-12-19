@@ -47,9 +47,9 @@ class MobileNetSSDDetector:
 
         print("Downloading MobileNet SSD model files...")
 
-        # URLs for the model files
-        model_url = "https://github.com/chuanqi305/MobileNet-SSD/raw/master/mobilenet_iter_73000.caffemodel"
-        config_url = "https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/master/deploy.prototxt"
+        # URLs for the model files (using OpenCV's official samples)
+        model_url = "https://github.com/opencv/opencv/raw/4.x/samples/data/MobileNetSSD_deploy.caffemodel"
+        config_url = "https://github.com/opencv/opencv/raw/4.x/samples/data/MobileNetSSD_deploy.prototxt"
 
         try:
             if not os.path.exists(model_path):
