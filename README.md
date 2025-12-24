@@ -1,20 +1,20 @@
-# Python GenAI Monorepo
+# ML Monorepo: Computer Vision & Multimodal AI Platform
 
 ## Overview
 
-This monorepo is an end-to-end platform for developing, training, and deploying Large Language Models (LLMs) integrated with Computer Vision (CV) applications. It features a modern **Angular web dashboard** for real-time color tracking with FastAPI backend. The platform leverages Python, Nx for workspace orchestration, and supports modular development across multiple apps and packages.
+This monorepo is an end-to-end platform for computer vision and AI applications, integrating multiple detection modalities with modern web and mobile interfaces. It features **multi-modal detection** (color tracking + object detection), **LLM-powered narration**, and **cross-platform interfaces** for real-time video processing.
 
 Key features:
-- **🎨 Web Dashboard** - Modern Angular UI for real-time color tracking with live video streaming
-- **📱 Mobile App** - React Native (Expo) app for iPhone camera streaming and tracking
-- **🎯 Multi-color object tracking** - Real-time detection and tracking of primary colors (Red, Blue, Yellow, Green)
-- **⚡ FastAPI Backend** - High-performance API with WebSocket support for video streaming
-- **📊 Live Statistics** - Real-time detection counts, FPS monitoring, and interactive controls
-- **🔧 LLM and CV integration** - Ready for multimodal AI workflows
-- **📦 Modular Nx workspace** - Scalable development with Python and TypeScript
-- **🐍 Poetry for dependency management** - Consistent Python environments
-- **🔌 Pluggable LLM client** - Support for OpenAI, Anthropic, Google, etc.
-- **✅ Automated testing, linting, and CI/CD pipelines**
+- **🔍 Multi-Modal Detection** - Color tracking (Red, Blue, Yellow, Green) + Object detection (YOLOv8, MobileNet SSD)
+- **🌐 Web Dashboard** - Modern Angular UI for real-time video streaming and control
+- **📱 Cross-Platform App** - Flutter app for iOS/Android/Desktop with live video processing
+- **⚡ FastAPI Backend** - High-performance API with WebSocket streaming and REST controls
+- **🎤 AI Narration** - LLM-generated scene descriptions using Google Gemini
+- **📊 Live Analytics** - Real-time detection stats, FPS monitoring, and performance metrics
+- **🖥️ CLI Tools** - Local computer vision applications for development
+- **📦 Modular Architecture** - Nx workspace with Python and TypeScript components
+- **🐍 Poetry Dependency Management** - Consistent Python environments
+- **🔧 Extensible LLM Integration** - Support for OpenAI, Anthropic, Google, etc.
 
 ---
 
@@ -23,27 +23,28 @@ Key features:
 ```
 ml-monorepo/
 ├── apps/
-│   ├── mobile/                # React Native/Expo iPhone App (NEW!)
-│   ├── color-tracker-ui/      # Angular web dashboard (NEW!)
-│   │   ├── src/app/
-│   │   │   ├── components/    # Video display, controls, stats
-│   │   │   └── services/      # API client, WebSocket
-│   │   └── ...
-│   ├── cv-api/                # FastAPI backend (NEW!)
+│   ├── cv-api/                # FastAPI backend server
 │   │   ├── api_server.py      # WebSocket + REST API
+│   │   ├── llm_service.py      # AI narration service
 │   │   └── pyproject.toml
-│   └── cv-app/                # CLI color tracking application
-│       ├── main.py            # Main entry point
-│       └── ...
+│   ├── object-detection-ui/   # Angular web dashboard
+│   │   ├── src/app/components/ # Video display, controls, stats
+│   │   └── src/app/services/   # API client, WebSocket
+│   ├── color_tracker/         # Flutter cross-platform app
+│   │   ├── lib/main.dart       # Material Design UI
+│   │   └── pubspec.yaml
+│   └── cv-app/                # Python CLI application
+│       └── main.py             # Local object detection
 ├── libs/
-│   └── cv-utils/              # Shared computer vision utilities
-│       └── src/
-│           └── cv_utils/
-│               └── tracker.py  # Color tracking implementation
+│   ├── cv-utils/              # Color tracking utilities
+│   │   └── src/cv_utils/tracker.py
+│   └── od-models/             # Object detection models
+│       └── src/od_models/
+│           ├── object_detection_tracker.py  # YOLOv8
+│           └── mobilenet_ssd_detector.py     # MobileNet SSD
 ├── tests/                     # Unit and integration tests
-├── Dockerfile                 # Docker configuration
-├── LICENSE                    # MIT License
-├── README.md
+├── Dockerfile                 # Container deployment
+├── AGENTS.md                  # Agent specifications
 └── ...
 ```
 
@@ -65,7 +66,7 @@ poetry run uvicorn api_server:app --reload
 #### Terminal 2: Start Frontend
 ```sh
 # From monorepo root
-npx nx serve color-tracker-ui
+npx nx serve object-detection-ui
 ```
 
 #### Open Browser
@@ -81,23 +82,36 @@ Navigate to **http://localhost:4200**
 
 ---
 
-### Option 2: Mobile App (iPhone)
+### Option 2: Cross-Platform Flutter App
 
-**Use your iPhone as a webcam and tracking display**
+**Native app for iOS, Android, Windows, macOS, and Linux**
 
-1.  **Start the Backend**:
-    (Follow 'Terminal 1' steps from Option 1 above)
+1. **Start the Backend**:
+   (Follow 'Terminal 1' steps from Option 1 above)
 
-2.  **Start the Expo App**:
-    ```sh
-    cd apps/mobile
-    npx expo start
-    ```
+2. **Run the Flutter App**:
+   ```sh
+   cd apps/color_tracker
+   flutter pub get
+   flutter run
+   ```
 
-3.  **Connect**:
-    *   Scan the QR code with **Expo Go** on your iPhone.
-    *   Ensure your phone is on the same Wi-Fi as your computer.
-    *   *Note: Update the WebSocket IP in `apps/mobile/App.js` if connection fails.*
+   Or for development with hot reload:
+   ```sh
+   flutter run --debug
+   ```
+
+**Features:**
+- 📱 Native performance across all platforms
+- 🎥 Real-time video streaming from device camera
+- 📊 Live detection statistics and AI narration
+- 🎛️ Start/stop tracking controls
+- 🔄 WebSocket integration with backend API
+
+**Platform-Specific Setup:**
+- **iOS**: `flutter run -d ios`
+- **Android**: `flutter run -d android`
+- **Desktop**: `flutter run -d macos` (or `windows`, `linux`)
 
 ---
 
@@ -121,16 +135,16 @@ Navigate to **http://localhost:4200**
    poetry install
    ```
 
-3. **Run the multi-color tracker:**
+3. **Run the object detection application:**
    ```sh
    poetry run python -m cv-app.main
    ```
-   
+
    The application will:
    - Open your webcam
-   - Detect objects in **Red, Blue, Yellow, and Green**
-   - Draw colored bounding boxes around each detected object
-   - Display the color name above each box
+   - Detect objects using **YOLOv8** neural network
+   - Draw bounding boxes around detected objects (80+ classes)
+   - Display class names and confidence scores
    - Press `q` to quit
 
 4. **Run tests:**
@@ -190,11 +204,23 @@ Edit `libs/cv-utils/src/cv_utils/tracker.py` to:
 
 ---
 
-## LLM Integration
+## AI & Multimodal Features
 
-- The repo supports a generic LLM client in `packages/llm_client/client.py`.
-- Select your provider via the `LLM_PROVIDER` environment variable.
-- API keys and model names are required and should be stored securely (never committed).
+### LLM-Powered Narration
+- **Scene Descriptions**: AI-generated natural language descriptions of detected scenes
+- **Accessibility**: Designed for users with visual impairments
+- **Provider Support**: Google Gemini 2.0 Flash with extensible architecture for OpenAI, Anthropic
+- **Smart Timing**: Narration updates based on detection mode and frame rate
+- **Fallback Mode**: Graceful degradation when LLM unavailable
+
+### Multi-Modal Detection Modes
+The system supports three detection modes that can be switched dynamically:
+
+1. **Color Tracking**: HSV-based detection of primary colors (Red, Blue, Yellow, Green)
+2. **Object Detection (MobileNet SSD)**: Fast detection of 20 COCO classes
+3. **Object Detection (YOLOv8)**: Accurate detection of 80+ COCO classes
+
+**Mode Selection**: Switch between modes via API or web interface for different use cases.
 
 ---
 

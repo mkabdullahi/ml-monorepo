@@ -7,8 +7,8 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.11"
-# Detection library
-ultralytics = "^8.2.0" 
+# Detection libraries
+ultralytics = "^8.2.0"
 opencv-python = "^4.8.1.0"
 numpy = "~1.26.0"
 

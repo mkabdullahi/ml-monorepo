@@ -61,13 +61,16 @@ import { VideoStreamService } from '../../services/video-stream.service';
             (selectionChange)="changeMode()"
             class="mode-select">
             <mat-option value="color">Color Detection</mat-option>
-            <mat-option value="object">Object Detection</mat-option>
+            <mat-option value="object">Object Detection (MobileNet SSD)</mat-option>
+            <mat-option value="object_yolo">Object Detection (YOLOv8)</mat-option>
           </mat-select>
           <p class="mode-description">
             @if (selectedMode === 'color') {
               Detects primary colors: Red, Blue, Yellow, Green
+            } @else if (selectedMode === 'object') {
+              Uses MobileNet SSD to detect various objects (person, car, dog, etc.) - Fast
             } @else {
-              Uses YOLOv8 to detect various objects (person, car, dog, etc.)
+              Uses YOLOv8 to detect various objects (person, car, dog, etc.) - More Accurate
             }
           </p>
         </div>

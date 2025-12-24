@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/cv-utils/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/od-models/src'))
 
 from cv_utils.tracker import COLOR_RANGES, BOX_COLORS
-from od_models.mobilenet_ssd_detector import detect_and_draw
+from od_models.object_detection_tracker import detect_and_draw as yolo_detect_and_draw
+from od_models.mobilenet_ssd_detector import detect_and_draw as mobilenet_detect_and_draw
 from llm_service import LLMService
 
 app = FastAPI(title="Color Tracker API", version="1.0.0")
@@ -177,24 +178,24 @@ async def update_settings(min_area: int = 500, camera_index: int = 0):
 
 @app.post("/api/mode/{mode}")
 async def set_detection_mode(mode: str):
-    """Set detection mode: 'color' or 'object'"""
+    """Set detection mode: 'color', 'object', or 'object_yolo'"""
     global current_global_narration
-    
-    if mode not in ["color", "object"]:
-        raise HTTPException(status_code=400, detail="Invalid mode. Must be 'color' or 'object'")
+
+    if mode not in ["color", "object", "object_yolo"]:
+        raise HTTPException(status_code=400, detail="Invalid mode. Must be 'color', 'object', or 'object_yolo'")
 
     tracker_state.detection_mode = mode
-    
+
     # Reset narration when switching modes
     current_global_narration = ""
-    
+
     return {"mode": mode, "message": f"Detection mode set to {mode}"}
 
 @app.get("/api/modes")
 async def get_available_modes():
     """Get available detection modes"""
     return {
-        "modes": ["color", "object"],
+        "modes": ["color", "object", "object_yolo"],
         "current_mode": tracker_state.detection_mode
     }
 
@@ -282,14 +283,18 @@ async def video_stream(websocket: WebSocket):
 
                                 frame_stats[color_name] += 1
 
-            elif tracker_state.detection_mode == "object":
-                # Process frame with YOLO object detection with timeout protection
+            elif tracker_state.detection_mode in ["object", "object_yolo"]:
+                # Choose detector based on mode
+                detector_func = mobilenet_detect_and_draw if tracker_state.detection_mode == "object" else yolo_detect_and_draw
+                timeout_seconds = 1.0 if tracker_state.detection_mode == "object" else 2.0  # YOLO needs more time
+
+                # Process frame with selected object detection with timeout protection
                 try:
-                    # Run YOLO in executor to prevent blocking async loop
+                    # Run detector in executor to prevent blocking async loop
                     loop = asyncio.get_event_loop()
                     frame, detections = await asyncio.wait_for(
-                        loop.run_in_executor(None, detect_and_draw, frame),
-                        timeout=1.0  # 1 second timeout
+                        loop.run_in_executor(None, detector_func, frame),
+                        timeout=timeout_seconds
                     )
 
                     # Count detections by class
@@ -308,11 +313,12 @@ async def video_stream(websocket: WebSocket):
 
                     # Set frame stats with actual detection counts
                     frame_stats = class_counts if class_counts else {"objects_detected": 0}
-                    
+
                 except asyncio.TimeoutError:
                     # Fallback on timeout: skip detection for this frame
+                    detector_name = "MobileNet SSD" if tracker_state.detection_mode == "object" else "YOLOv8"
                     frame_stats = {"objects_detected": 0}
-                    print("YOLO inference timed out, skipping frame")
+                    print(f"{detector_name} inference timed out, skipping frame")
 
             # Update global stats
             tracker_state.detection_stats = frame_stats
@@ -335,7 +341,13 @@ async def video_stream(websocket: WebSocket):
             frame_count += 1
 
             # Adjust narration frequency based on detection mode and frame rate
-            narration_interval = 60 if tracker_state.detection_mode == "object" else 90  # ~4s for object, ~3s for color
+            if tracker_state.detection_mode == "object_yolo":
+                narration_interval = 45  # ~3s for YOLO (at 15 FPS)
+            elif tracker_state.detection_mode == "object":
+                narration_interval = 60  # ~3s for MobileNet SSD (at 20 FPS)
+            else:
+                narration_interval = 90  # ~3s for color detection (at 30 FPS)
+
             if frame_count % narration_interval == 0:
                 current_narration = await llm_service.generate_narration(detected_objects)
 
@@ -349,9 +361,10 @@ async def video_stream(websocket: WebSocket):
             })
 
             # Control frame rate based on detection mode
-            # MobileNet SSD is much faster, so we can use higher frame rates
-            if tracker_state.detection_mode == "object":
-                await asyncio.sleep(1/20)  # 20 FPS for object detection (MobileNet SSD is fast)
+            if tracker_state.detection_mode == "object_yolo":
+                await asyncio.sleep(1/15)  # 15 FPS for YOLOv8 (slower but more accurate)
+            elif tracker_state.detection_mode == "object":
+                await asyncio.sleep(1/20)  # 20 FPS for MobileNet SSD (fast)
             else:
                 await asyncio.sleep(1/30)  # 30 FPS for color detection
 
