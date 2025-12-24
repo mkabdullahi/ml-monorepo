@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/cv-utils/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../libs/od-models/src'))
 
 from cv_utils.tracker import COLOR_RANGES, BOX_COLORS
-from od_models.object_dectation_tracker import detect_and_draw as yolo_detect_and_draw
+from od_models.object_detection_tracker import detect_and_draw as yolo_detect_and_draw
 from od_models.mobilenet_ssd_detector import detect_and_draw as mobilenet_detect_and_draw
 from llm_service import LLMService
 

@@ -66,7 +66,7 @@ General-purpose object detection and classification using YOLOv8 neural network 
 - __Output__: Annotated frames with detection metadata
 - __Confidence Threshold__: 0.5 (configurable)
 - __Dependencies__: ultralytics YOLO, OpenCV, NumPy
-- __Location__: `libs/od-models/src/od_models/object_dectation_tracker.py`
+- __Location__: `libs/od-models/src/od_models/object_detection_tracker.py`
 
 ### API Interface
 

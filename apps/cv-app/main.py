@@ -3,7 +3,7 @@ import sys
 import time
 
 # from cv_utils.tracker import run_multi_color_tracking_stream
-from od_models.object_dectation_tracker import detect_and_draw
+from od_models.object_detection_tracker import detect_and_draw
 
 
 def run_object_detection_stream(camera_index=0):
