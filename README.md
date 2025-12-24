@@ -255,9 +255,42 @@ See `.env.example` for details.
 
 ## Testing & CI
 
+### Unit Tests
 - Unit and integration tests are in `tests/`.
-- CI/CD is managed via Nx and GitHub Actions.
-- Secrets for integration tests must be set in CI environment.
+- Run Python tests: `cd apps && poetry run pytest`
+- Run Angular unit tests: `npx nx test object-detection-ui`
+
+### E2E Tests
+- Comprehensive Cypress e2e tests for the Angular dashboard
+- Tests cover UI interactions, API integration, and user workflows
+- Includes WebSocket simulation and multi-modal detection validation
+
+```bash
+# Run e2e tests
+npx nx e2e object-detection-ui
+
+# Run in interactive mode
+npx nx e2e object-detection-ui --watch
+
+# Run in CI mode
+npx nx e2e object-detection-ui --configuration=ci
+```
+
+**E2E Test Coverage:**
+- ✅ Dashboard UI and component interactions
+- ✅ API endpoint integration and error handling
+- ✅ Real-time WebSocket communication
+- ✅ Multi-modal detection mode switching
+- ✅ AI narration display and updates
+- ✅ Cross-browser compatibility (Chrome, Firefox, Electron)
+- ✅ Performance and accessibility validation
+
+### CI/CD
+- Automated testing via GitHub Actions (`.github/workflows/ci-e2e.yml`)
+- Multi-browser testing with parallel execution
+- Test recording and artifact upload on failures
+- Performance monitoring with Lighthouse audits
+- Secrets management for integration tests
 
 ---
 

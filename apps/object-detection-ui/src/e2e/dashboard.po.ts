@@ -124,16 +124,16 @@ export class DashboardPage {
     cy.window().then((win) => {
       // Override WebSocket for testing
       const OriginalWebSocket = win.WebSocket;
-      win.WebSocket = class MockWebSocket extends OriginalWebSocket {
-        constructor(url: string) {
-          super(url);
+      (win as any).WebSocket = class MockWebSocket extends OriginalWebSocket {
+        constructor(url: string | URL, protocols?: string | string[]) {
+          super(url, protocols);
           // Simulate connection
           setTimeout(() => {
             this.onopen?.(new Event('open'));
           }, 100);
         }
 
-        send(data: string) {
+        override send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {
           // Handle outgoing messages if needed
         }
       };

@@ -1,10 +1,4 @@
-import { nxE2EPreset } from '@nx/cypress/plugins/cypress-preset';
-import { defineConfig } from 'cypress';
-
-export default defineConfig({
-  ...nxE2EPreset(__dirname),
-  specPattern: 'src/e2e/**/*.cy.{js,jsx,ts,tsx}',
-  supportFile: false,
+export default {
   video: true,
   screenshotOnRunFailure: true,
   defaultCommandTimeout: 10000,
@@ -16,4 +10,12 @@ export default defineConfig({
     runMode: 2,
     openMode: 0,
   },
-});
+  e2e: {
+    supportFile: false,
+    specPattern: 'src/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    baseUrl: 'http://localhost:4200',
+    setupNodeEvents(on: any, config: any) {
+      // implement node event listeners here
+    },
+  },
+};

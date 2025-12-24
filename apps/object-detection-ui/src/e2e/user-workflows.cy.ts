@@ -100,17 +100,17 @@ describe('End-to-End User Workflows', () => {
   it('should display AI narration during object detection', () => {
     // Mock WebSocket messages with narration
     cy.window().then((win) => {
-      const mockWebSocket = {
+      const mockWebSocket: any = {
         send: cy.stub(),
         close: cy.stub(),
-        onmessage: null,
-        onopen: null,
-        onclose: null,
-        onerror: null,
+        onmessage: null as ((event: Event) => void) | null,
+        onopen: null as (() => void) | null,
+        onclose: null as (() => void) | null,
+        onerror: null as ((event: Event) => void) | null,
       };
 
       // Mock WebSocket to simulate narration messages
-      win.WebSocket = function() {
+      (win as any).WebSocket = function() {
         setTimeout(() => {
           mockWebSocket.onopen?.();
           // Simulate narration message
@@ -201,7 +201,7 @@ describe('End-to-End User Workflows', () => {
     dashboard.waitForDashboardLoad();
 
     // Tab through interactive elements
-    cy.get('body').tab();
+    cy.get('body').type('{tab}');
     cy.focused().should('be.visible');
 
     // Space/Enter should work on buttons

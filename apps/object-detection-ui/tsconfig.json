@@ -21,6 +21,10 @@
   },
   "files": [],
   "include": [],
+  "exclude": [
+    "src/**/*.cy.ts",
+    "src/**/*.po.ts"
+  ],
   "references": [
     {
       "path": "./tsconfig.app.json"

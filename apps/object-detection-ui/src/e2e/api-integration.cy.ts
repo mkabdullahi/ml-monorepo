@@ -1,3 +1,4 @@
+import 'cypress';
 import { DashboardPage } from './dashboard.po';
 
 describe('API Integration Tests', () => {
