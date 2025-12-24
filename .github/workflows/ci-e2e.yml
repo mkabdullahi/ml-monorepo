@@ -1,0 +1,199 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Python and Poetry
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python dependencies
+        run: |
+          cd apps/cv-api
+          poetry install --no-dev
+
+      - name: Build Angular app
+        run: npx nx build object-detection-ui --configuration=production
+
+      - name: Start FastAPI backend
+        run: |
+          cd apps/cv-api
+          poetry run uvicorn api_server:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+
+      - name: Run E2E tests
+        run: npx nx e2e object-detection-ui --configuration=ci --record
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-results-${{ matrix.node-version }}
+          path: |
+            apps/object-detection-ui/cypress/results/
+            apps/object-detection-ui/cypress/videos/
+            apps/object-detection-ui/cypress/screenshots/
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: success()
+        with:
+          file: ./coverage/lcov.info
+          flags: e2e
+          name: e2e-coverage
+
+  e2e-chrome:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Python and Poetry
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python dependencies
+        run: |
+          cd apps/cv-api
+          poetry install --no-dev
+
+      - name: Build Angular app
+        run: npx nx build object-detection-ui --configuration=production
+
+      - name: Start FastAPI backend
+        run: |
+          cd apps/cv-api
+          poetry run uvicorn api_server:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+
+      - name: Run E2E tests (Chrome)
+        run: npx nx e2e object-detection-ui --configuration=ci --browser=chrome
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
+  e2e-firefox:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Python and Poetry
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python dependencies
+        run: |
+          cd apps/cv-api
+          poetry install --no-dev
+
+      - name: Build Angular app
+        run: npx nx build object-detection-ui --configuration=production
+
+      - name: Start FastAPI backend
+        run: |
+          cd apps/cv-api
+          poetry run uvicorn api_server:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+
+      - name: Run E2E tests (Firefox)
+        run: npx nx e2e object-detection-ui --configuration=ci --browser=firefox
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
+  e2e-performance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular app
+        run: npx nx build object-detection-ui --configuration=production
+
+      - name: Run Lighthouse performance audit
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: http://localhost:4200
+          configPath: .lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [e2e, e2e-chrome, e2e-firefox, e2e-performance]
+    if: always()
+
+    steps:
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "E2E tests failed. Check the artifacts for videos and screenshots."
+          # Add notification logic here (Slack, Discord, etc.)
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "All E2E tests passed successfully!"

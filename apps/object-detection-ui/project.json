@@ -86,6 +86,19 @@
         "staticFilePath": "dist/apps/object-detection-ui/browser",
         "spa": true
       }
+    },
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/object-detection-ui/cypress.config.ts",
+        "tsConfig": "apps/object-detection-ui/tsconfig.e2e.json",
+        "testingType": "e2e"
+      },
+      "configurations": {
+        "ci": {
+          "devServerTarget": "object-detection-ui:serve-static"
+        }
+      }
     }
   }
 }

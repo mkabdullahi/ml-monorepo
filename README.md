@@ -245,6 +245,10 @@ See `.env.example` for details.
   ```sh
   npx nx lint cv-app
   ```
+- Run E2E tests for the Angular dashboard:
+  ```sh
+  npx nx e2e object-detection-ui
+  ```
 - Contributions welcome! Please submit PRs with clear descriptions and tests.
 
 ---
